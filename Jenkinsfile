@@ -19,7 +19,7 @@ pipeline {
 				sh 'git reset --hard origin/master'
 				script {
 					releaseCandidate = 0 == sh(
-						script: "git merge --ff-only jenkins_${BUILD_NUMBER} && git merge-base --is-ancestor master jenkins_${BUILD_NUMBER} && [[ \"$(git rev-parse master)\" != \"$(git rev-parse jenkins_${BUILD_NUMBER})\" ]]",
+						script: "git merge --ff-only jenkins_${BUILD_NUMBER} && git merge-base --is-ancestor master jenkins_${BUILD_NUMBER} && [[ \"\$(git rev-parse master)\" != \"\$(git rev-parse jenkins_${BUILD_NUMBER})\" ]]",
 						returnStatus: true
 					)
 				}
