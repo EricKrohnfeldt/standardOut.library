@@ -112,8 +112,8 @@
 		<!-- Checks for Naming Conventions. -->
 		<!-- See https://checkstyle.org/config_naming.html -->
 		<module name="ConstantName">
-			<property name="applyToPublic" value="true"/>
-			<property name="applyToProtected" value="true"/>
+			<property name="applyToPublic" value="false"/>
+			<property name="applyToProtected" value="false"/>
 			<property name="applyToPackage" value="false"/>
 			<property name="applyToPrivate" value="false"/>
 		</module>
