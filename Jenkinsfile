@@ -50,7 +50,6 @@ pipeline {
 			agent { docker { image env.DOCKER_IMAGE; args env.DOCKER_ARGS; registryUrl env.DOCKER_URL; registryCredentialsId env.DOCKER_CREDS } }
 			steps {
 				milestone 3
-				sh 'mvn help:evaluate -Dexpression=project.artifactId'
 				sh "git branch -d jenkins_${BUILD_NUMBER} || true"
 				sh "git checkout -b jenkins_${BUILD_NUMBER}"
 				sshagent( [ 'KirbyGitKey' ] ) {
