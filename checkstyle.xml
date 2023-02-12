@@ -92,6 +92,12 @@
 			<property name="ignoreComments" value="true" />
 		</module>
 
+		<module name="RegexpSinglelineJava">
+			<property name="format" value="[^ ]!|![^ ]" />
+			<property name="message" value="Space around logical not" />
+			<property name="ignoreComments" value="true" />
+		</module>
+
 		<!-- Checks for Javadoc comments. -->
 		<!-- See https://checkstyle.org/config_javadoc.html -->
 		<module name="InvalidJavadocPosition" />
@@ -149,7 +155,9 @@
 		<module name="EmptyForIteratorPad" />
 		<module name="GenericWhitespace" />
 		<module name="MethodParamPad" />
-		<module name="NoWhitespaceAfter" />
+		<module name="NoWhitespaceAfter">
+			<property name="tokens" value="ARRAY_INIT, AT, INC, DEC, UNARY_MINUS, UNARY_PLUS, BNOT, DOT, ARRAY_DECLARATOR, INDEX_OP" />
+		</module>
 		<module name="NoWhitespaceBefore" />
 		<module name="OperatorWrap">
 			<property name="option" value="eol" />
