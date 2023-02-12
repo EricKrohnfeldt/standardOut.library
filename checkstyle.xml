@@ -80,6 +80,8 @@
 		</module>
 	-->
 
+	<module name="SuppressWarningsFilter" />
+
 	<module name="TreeWalker">
 
 		<property name="tabWidth" value="4" />
@@ -186,7 +188,7 @@
 		<!-- <module name="HiddenField" /> -->
 		<module name="IllegalInstantiation" />
 		<module name="InnerAssignment" />
-		<!-- <module name="MagicNumber" /> -->
+		<module name="MagicNumber" />
 		<module name="MissingSwitchDefault" />
 		<module name="MultipleVariableDeclarations" />
 		<module name="SimplifyBooleanExpression" />
@@ -212,6 +214,8 @@
 			<property name="file" value="${org.checkstyle.sun.suppressionxpathfilter.config}" default="checkstyle-xpath-suppressions.xml" />
 			<property name="optional" value="true" />
 		</module>
+
+		<module name="SuppressWarningsHolder" />
 
 	</module>
 
