@@ -93,7 +93,7 @@
 		</module>
 
 		<module name="RegexpSinglelineJava">
-			<property name="format" value="[^ ]!|![^ ]" />
+			<property name="format" value="[^ ]!|![^ =]" />
 			<property name="message" value="Space around logical not" />
 			<property name="ignoreComments" value="true" />
 		</module>
