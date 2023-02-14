@@ -138,7 +138,9 @@
 
 		<!-- Checks for imports -->
 		<!-- See https://checkstyle.org/config_imports.html -->
-		<module name="AvoidStarImport" />
+		<module name="AvoidStarImport">
+			<property name="allowStaticMemberImports" value="true" />
+		</module>
 		<module name="IllegalImport" /> <!-- defaults to sun.* packages -->
 		<module name="RedundantImport" />
 		<module name="UnusedImports">
