@@ -158,7 +158,7 @@
 		<module name="GenericWhitespace" />
 		<module name="MethodParamPad" />
 		<module name="NoWhitespaceAfter">
-			<property name="tokens" value="ARRAY_INIT, AT, INC, DEC, UNARY_MINUS, UNARY_PLUS, BNOT, DOT, ARRAY_DECLARATOR, INDEX_OP" />
+			<property name="tokens" value="AT, INC, DEC, UNARY_MINUS, UNARY_PLUS, BNOT, DOT, ARRAY_DECLARATOR, INDEX_OP" />
 		</module>
 		<module name="NoWhitespaceBefore" />
 		<module name="OperatorWrap">
