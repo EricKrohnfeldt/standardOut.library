@@ -4,7 +4,7 @@
 
 	<scm>
 		<developerConnection>scm:git:ssh://git.herb.herbmarshall.com/repository/util/standardOut.library</developerConnection>
-		<tag>HEAD</tag>
+		<tag>standardOut.library-0.1</tag>
 	</scm>
 
 	<parent>
@@ -14,7 +14,7 @@
 	</parent>
 
 	<artifactId>standardOut.library</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.1</version>
 	<packaging>jar</packaging>
 
 	<properties>
