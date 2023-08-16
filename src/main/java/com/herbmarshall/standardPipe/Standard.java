@@ -27,15 +27,16 @@ public final class Standard {
 
 	/** @see PrintStream#print(String) */
 	public void print( String value ) {
-		resolve().print( value );
+		toStream().print( value );
 	}
 
 	/** @see PrintStream#println(String) */
 	public void println( String value ) {
-		resolve().println( value );
+		toStream().println( value );
 	}
 
-	private PrintStream resolve() {
+	/** Returns the current active {@link PrintStream}. */
+	public PrintStream toStream() {
 		return Objects.requireNonNullElse( pipe, defaultPipe );
 	}
 

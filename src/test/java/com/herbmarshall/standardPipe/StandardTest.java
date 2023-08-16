@@ -130,6 +130,51 @@ class StandardTest {
 	}
 
 	@Test
+	void toStream_default() {
+		// Arrange
+		PrintStream stream = new PrintStream( new ByteArrayOutputStream() );
+		Standard standard = new Standard(
+			UUID.randomUUID().toString(),
+			stream
+		);
+		// Act
+		PrintStream output = standard.toStream();
+		// Assert
+		Assertions.assertSame( stream, output );
+	}
+
+	@Test
+	void toStream_override() {
+		// Arrange
+		PrintStream stream = new PrintStream( new ByteArrayOutputStream() );
+		Standard standard = new Standard(
+			UUID.randomUUID().toString(),
+			new PrintStream( new ByteArrayOutputStream() )
+		);
+		standard.override( stream );
+		// Act
+		PrintStream output = standard.toStream();
+		// Assert
+		Assertions.assertSame( stream, output );
+	}
+
+	@Test
+	void toStream_reset() {
+		// Arrange
+		PrintStream stream = new PrintStream( new ByteArrayOutputStream() );
+		Standard standard = new Standard(
+			UUID.randomUUID().toString(),
+			stream
+		);
+		standard.override( new PrintStream( new ByteArrayOutputStream() ) );
+		standard.reset();
+		// Act
+		PrintStream output = standard.toStream();
+		// Assert
+		Assertions.assertSame( stream, output );
+	}
+
+	@Test
 	void override() {
 		// Arrange
 		ByteArrayOutputStream streamA = new ByteArrayOutputStream();
