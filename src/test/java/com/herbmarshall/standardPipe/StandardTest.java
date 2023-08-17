@@ -33,7 +33,7 @@ class StandardTest {
 	@Test
 	void constructor_defaultPipe_null() {
 		// Arrange
-		String name = UUID.randomUUID().toString();
+		String name = randomString();
 		// Act
 		try {
 			new Standard( name, null );
@@ -53,10 +53,10 @@ class StandardTest {
 		// Arrange
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		Standard standard = new Standard(
-			UUID.randomUUID().toString(),
+			randomString(),
 			new PrintStream( stream )
 		);
-		String value = UUID.randomUUID().toString();
+		String value = randomString();
 		// Act
 		standard.print( value );
 		// Assert
@@ -68,10 +68,10 @@ class StandardTest {
 		// Arrange
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		Standard standard = new Standard(
-			UUID.randomUUID().toString(),
+			randomString(),
 			new PrintStream( new ByteArrayOutputStream() )
 		);
-		String value = UUID.randomUUID().toString();
+		String value = randomString();
 		standard.override( new PrintStream( stream ) );
 		// Act
 		standard.print( value );
@@ -84,7 +84,7 @@ class StandardTest {
 		// Arrange
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		Standard standard = new Standard(
-			UUID.randomUUID().toString(),
+			randomString(),
 			new PrintStream( stream )
 		);
 		// Act
@@ -98,10 +98,10 @@ class StandardTest {
 		// Arrange
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		Standard standard = new Standard(
-			UUID.randomUUID().toString(),
+			randomString(),
 			new PrintStream( stream )
 		);
-		String value = UUID.randomUUID().toString();
+		String value = randomString();
 		// Act
 		standard.println( value );
 		// Assert
@@ -113,11 +113,11 @@ class StandardTest {
 		// Arrange
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		Standard standard = new Standard(
-			UUID.randomUUID().toString(),
+			randomString(),
 			new PrintStream( new ByteArrayOutputStream() )
 		);
 		standard.override( new PrintStream( stream ) );
-		String value = UUID.randomUUID().toString();
+		String value = randomString();
 		// Act
 		standard.println( value );
 		// Assert
@@ -129,7 +129,7 @@ class StandardTest {
 		// Arrange
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		Standard standard = new Standard(
-			UUID.randomUUID().toString(),
+			randomString(),
 			new PrintStream( stream )
 		);
 		// Act
@@ -143,7 +143,7 @@ class StandardTest {
 		// Arrange
 		PrintStream stream = new PrintStream( new ByteArrayOutputStream() );
 		Standard standard = new Standard(
-			UUID.randomUUID().toString(),
+			randomString(),
 			stream
 		);
 		// Act
@@ -157,7 +157,7 @@ class StandardTest {
 		// Arrange
 		PrintStream stream = new PrintStream( new ByteArrayOutputStream() );
 		Standard standard = new Standard(
-			UUID.randomUUID().toString(),
+			randomString(),
 			new PrintStream( new ByteArrayOutputStream() )
 		);
 		standard.override( stream );
@@ -172,7 +172,7 @@ class StandardTest {
 		// Arrange
 		PrintStream stream = new PrintStream( new ByteArrayOutputStream() );
 		Standard standard = new Standard(
-			UUID.randomUUID().toString(),
+			randomString(),
 			stream
 		);
 		standard.override( new PrintStream( new ByteArrayOutputStream() ) );
@@ -188,13 +188,13 @@ class StandardTest {
 		// Arrange
 		ByteArrayOutputStream streamA = new ByteArrayOutputStream();
 		Standard standard = new Standard(
-			UUID.randomUUID().toString(),
+			randomString(),
 			new PrintStream( streamA )
 		);
 		ByteArrayOutputStream streamB = new ByteArrayOutputStream();
 		PrintStream override = new PrintStream( streamB );
-		String valueA = UUID.randomUUID().toString();
-		String valueB = UUID.randomUUID().toString();
+		String valueA = randomString();
+		String valueB = randomString();
 		// Act
 		standard.print( valueA );
 		standard.override( override );
@@ -207,7 +207,7 @@ class StandardTest {
 	@Test
 	void override_null() {
 		// Arrange
-		String name = UUID.randomUUID().toString();
+		String name = randomString();
 		Standard standard = new Standard(
 			name,
 			new PrintStream( new ByteArrayOutputStream() )
@@ -229,7 +229,7 @@ class StandardTest {
 	@Test
 	void override_doubleCall() {
 		// Arrange
-		String name = UUID.randomUUID().toString();
+		String name = randomString();
 		Standard standard = new Standard(
 			name,
 			new PrintStream( new ByteArrayOutputStream() )
@@ -255,14 +255,14 @@ class StandardTest {
 		// Arrange
 		ByteArrayOutputStream streamA = new ByteArrayOutputStream();
 		Standard standard = new Standard(
-			UUID.randomUUID().toString(),
+			randomString(),
 			new PrintStream( streamA )
 		);
 		ByteArrayOutputStream streamB = new ByteArrayOutputStream();
 		PrintStream override = new PrintStream( streamB );
-		String valueA = UUID.randomUUID().toString();
-		String valueB = UUID.randomUUID().toString();
-		String valueC = UUID.randomUUID().toString();
+		String valueA = randomString();
+		String valueB = randomString();
+		String valueC = randomString();
 		// Act
 		standard.print( valueA );
 		standard.override( override );
@@ -282,6 +282,10 @@ class StandardTest {
 	@Test
 	void standardErr() {
 		Standard.err.println( "Standard ERR" );
+	}
+
+	private String randomString() {
+		return UUID.randomUUID().toString();
 	}
 
 }
