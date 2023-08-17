@@ -2,12 +2,16 @@ package com.herbmarshall.standardPipe;
 
 import java.io.PrintStream;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A wrapper for the standard outputs.
  * The class exists to allow for easy testing of {@link System#out} and {@link System#err} usage.
  */
 public final class Standard {
+
+	private static final Set<Standard> knownInstances = ConcurrentHashMap.newKeySet();
 
 	static final String DOUBLE_OVERRIDE_ERROR_TEMPLATE = "Double override of standard pipe: %s";
 	static final String NULL_POINTER_ERROR_TEMPLATE = "Value of %s cannot be null";
@@ -24,6 +28,7 @@ public final class Standard {
 	Standard( String name, PrintStream defaultPipe ) {
 		this.name = requireNonNull( name, "name" );
 		this.defaultPipe = requireNonNull( defaultPipe, "defaultPipe" );
+		knownInstances.add( this );
 	}
 
 	/** @see PrintStream#print(String) */
@@ -57,6 +62,11 @@ public final class Standard {
 
 	private <T> T requireNonNull( T value, String name ) {
 		return Objects.requireNonNull( value, NULL_POINTER_ERROR_TEMPLATE.formatted( name ) );
+	}
+
+	/** Will call reset of all known {@link Standard}. */
+	public static void resetAll() {
+		knownInstances.forEach( Standard::reset );
 	}
 
 }

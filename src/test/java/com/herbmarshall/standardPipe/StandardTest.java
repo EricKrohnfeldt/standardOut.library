@@ -284,6 +284,32 @@ class StandardTest {
 		Standard.err.println( "Standard ERR" );
 	}
 
+	@Test
+	void resetAll() {
+		// Arrange
+		ByteArrayOutputStream streamDefaultA = new ByteArrayOutputStream();
+		ByteArrayOutputStream streamDefaultB = new ByteArrayOutputStream();
+		Standard standardA = new Standard( randomString(), new PrintStream( streamDefaultA ) );
+		Standard standardB = new Standard( randomString(), new PrintStream( streamDefaultB ) );
+		ByteArrayOutputStream streamOverrideA = new ByteArrayOutputStream();
+		ByteArrayOutputStream streamOverrideB = new ByteArrayOutputStream();
+		standardA.override( new PrintStream( streamOverrideA ) );
+		standardB.override( new PrintStream( streamOverrideB ) );
+		String overrideValue = randomString();
+		String defaultValue = randomString();
+		standardA.print( overrideValue );
+		standardB.print( overrideValue );
+		// Act
+		Standard.resetAll();
+		// Assert
+		standardA.print( defaultValue );
+		standardB.print( defaultValue );
+		Assertions.assertEquals( overrideValue, streamOverrideA.toString() );
+		Assertions.assertEquals( overrideValue, streamOverrideB.toString() );
+		Assertions.assertEquals( defaultValue, streamDefaultA.toString() );
+		Assertions.assertEquals( defaultValue, streamDefaultB.toString() );
+	}
+
 	private String randomString() {
 		return UUID.randomUUID().toString();
 	}
