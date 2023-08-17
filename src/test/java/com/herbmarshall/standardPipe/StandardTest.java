@@ -7,8 +7,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.UUID;
 
-import static com.herbmarshall.standardPipe.Standard.DOUBLE_OVERRIDE_ERROR_TEMPLATE;
-import static com.herbmarshall.standardPipe.Standard.NULL_POINTER_ERROR_TEMPLATE;
+import static com.herbmarshall.standardPipe.Standard.doubleOverrideError;
+import static com.herbmarshall.standardPipe.Standard.nullPointerError;
 
 class StandardTest {
 
@@ -24,7 +24,7 @@ class StandardTest {
 		// Assert
 		catch ( NullPointerException e ) {
 			Assertions.assertEquals(
-				NULL_POINTER_ERROR_TEMPLATE.formatted( "name" ),
+				nullPointerError( "name" ),
 				e.getMessage()
 			);
 		}
@@ -42,7 +42,7 @@ class StandardTest {
 		// Assert
 		catch ( NullPointerException e ) {
 			Assertions.assertEquals(
-				NULL_POINTER_ERROR_TEMPLATE.formatted( "defaultPipe" ),
+				nullPointerError( "defaultPipe" ),
 				e.getMessage()
 			);
 		}
@@ -220,7 +220,7 @@ class StandardTest {
 		// Assert
 		catch ( NullPointerException e ) {
 			Assertions.assertEquals(
-				NULL_POINTER_ERROR_TEMPLATE.formatted( "pipe" ),
+				nullPointerError( "pipe" ),
 				e.getMessage()
 			);
 		}
@@ -244,7 +244,7 @@ class StandardTest {
 		// Assert
 		catch ( IllegalStateException e ) {
 			Assertions.assertEquals(
-				DOUBLE_OVERRIDE_ERROR_TEMPLATE.formatted( name ),
+				doubleOverrideError( name ),
 				e.getMessage()
 			);
 		}
@@ -286,7 +286,7 @@ class StandardTest {
 		// Assert
 		catch ( NullPointerException e ) {
 			Assertions.assertEquals(
-				NULL_POINTER_ERROR_TEMPLATE.formatted( "pipe" ),
+				nullPointerError( "pipe" ),
 				e.getMessage()
 			);
 		}
@@ -310,7 +310,7 @@ class StandardTest {
 		// Assert
 		catch ( IllegalStateException e ) {
 			Assertions.assertEquals(
-				DOUBLE_OVERRIDE_ERROR_TEMPLATE.formatted( name ),
+				doubleOverrideError( name ),
 				e.getMessage()
 			);
 		}

@@ -14,9 +14,6 @@ public final class Standard {
 
 	private static final Set<Standard> knownInstances = ConcurrentHashMap.newKeySet();
 
-	static final String DOUBLE_OVERRIDE_ERROR_TEMPLATE = "Double override of standard pipe: %s";
-	static final String NULL_POINTER_ERROR_TEMPLATE = "Value of %s cannot be null";
-
 	public static final Standard out = new Standard( "OUT", System.out );
 	public static final Standard err = new Standard( "ERROR", System.err );
 
@@ -52,7 +49,7 @@ public final class Standard {
 	 * @throws IllegalStateException If an override is already in place
 	 */
 	public void override( ByteArrayOutputStream pipe ) {
-		if ( this.pipe != null ) throw new IllegalStateException( DOUBLE_OVERRIDE_ERROR_TEMPLATE.formatted( name ) );
+		if ( this.pipe != null ) throw new IllegalStateException( doubleOverrideError( name ) );
 		this.pipe = new PrintStream( requireNonNull( pipe, "pipe" ) );
 	}
 
@@ -61,7 +58,7 @@ public final class Standard {
 	 * @throws IllegalStateException If an override is already in place
 	 */
 	public void override( PrintStream pipe ) {
-		if ( this.pipe != null ) throw new IllegalStateException( DOUBLE_OVERRIDE_ERROR_TEMPLATE.formatted( name ) );
+		if ( this.pipe != null ) throw new IllegalStateException( doubleOverrideError( name ) );
 		this.pipe = requireNonNull( pipe, "pipe" );
 	}
 
@@ -71,12 +68,20 @@ public final class Standard {
 	}
 
 	private <T> T requireNonNull( T value, String name ) {
-		return Objects.requireNonNull( value, NULL_POINTER_ERROR_TEMPLATE.formatted( name ) );
+		return Objects.requireNonNull( value, nullPointerError( name ) );
 	}
 
 	/** Will call reset of all known {@link Standard}. */
 	public static void resetAll() {
 		knownInstances.forEach( Standard::reset );
+	}
+
+	static String doubleOverrideError( String pipeName ) {
+		return "Double override of standard pipe " + pipeName;
+	}
+
+	static String nullPointerError( String parameterName ) {
+		return "Value of " + parameterName + " cannot be null";
 	}
 
 }
