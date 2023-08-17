@@ -1,5 +1,6 @@
 package com.herbmarshall.standardPipe;
 
+import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Objects;
 import java.util.Set;
@@ -44,6 +45,15 @@ public final class Standard {
 	/** Returns the current active {@link PrintStream}. */
 	public PrintStream toStream() {
 		return Objects.requireNonNullElse( pipe, defaultPipe );
+	}
+
+	/**
+	 * Replace the default {@link PrintStream} using a {@link java.io.ByteArrayOutputStream}.
+	 * @throws IllegalStateException If an override is already in place
+	 */
+	public void override( ByteArrayOutputStream pipe ) {
+		if ( this.pipe != null ) throw new IllegalStateException( DOUBLE_OVERRIDE_ERROR_TEMPLATE.formatted( name ) );
+		this.pipe = new PrintStream( requireNonNull( pipe, "pipe" ) );
 	}
 
 	/**

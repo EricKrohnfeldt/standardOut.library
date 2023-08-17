@@ -184,7 +184,7 @@ class StandardTest {
 	}
 
 	@Test
-	void override() {
+	void override_printStream() {
 		// Arrange
 		ByteArrayOutputStream streamA = new ByteArrayOutputStream();
 		Standard standard = new Standard(
@@ -205,7 +205,7 @@ class StandardTest {
 	}
 
 	@Test
-	void override_null() {
+	void override_printStream_null() {
 		// Arrange
 		String name = randomString();
 		Standard standard = new Standard(
@@ -214,7 +214,7 @@ class StandardTest {
 		);
 		// Act
 		try {
-			standard.override( null );
+			standard.override( ( PrintStream ) null );
 			Assertions.fail();
 		}
 		// Assert
@@ -227,7 +227,7 @@ class StandardTest {
 	}
 
 	@Test
-	void override_doubleCall() {
+	void override_printStream_doubleCall() {
 		// Arrange
 		String name = randomString();
 		Standard standard = new Standard(
@@ -236,6 +236,72 @@ class StandardTest {
 		);
 		standard.override( new PrintStream( new ByteArrayOutputStream() ) );
 		PrintStream override = new PrintStream( new ByteArrayOutputStream() );
+		// Act
+		try {
+			standard.override( override );
+			Assertions.fail();
+		}
+		// Assert
+		catch ( IllegalStateException e ) {
+			Assertions.assertEquals(
+				DOUBLE_OVERRIDE_ERROR_TEMPLATE.formatted( name ),
+				e.getMessage()
+			);
+		}
+	}
+
+	@Test
+	void override_byteStream() {
+		// Arrange
+		ByteArrayOutputStream streamA = new ByteArrayOutputStream();
+		Standard standard = new Standard(
+			randomString(),
+			new PrintStream( streamA )
+		);
+		ByteArrayOutputStream streamB = new ByteArrayOutputStream();
+		String valueA = randomString();
+		String valueB = randomString();
+		// Act
+		standard.print( valueA );
+		standard.override( streamB );
+		standard.print( valueB );
+		// Assert
+		Assertions.assertEquals( valueA, streamA.toString() );
+		Assertions.assertEquals( valueB, streamB.toString() );
+	}
+
+	@Test
+	void override_byteStream_null() {
+		// Arrange
+		String name = randomString();
+		Standard standard = new Standard(
+			name,
+			new PrintStream( new ByteArrayOutputStream() )
+		);
+		// Act
+		try {
+			standard.override( ( ByteArrayOutputStream ) null );
+			Assertions.fail();
+		}
+		// Assert
+		catch ( NullPointerException e ) {
+			Assertions.assertEquals(
+				NULL_POINTER_ERROR_TEMPLATE.formatted( "pipe" ),
+				e.getMessage()
+			);
+		}
+	}
+
+	@Test
+	void override_byteStream_doubleCall() {
+		// Arrange
+		String name = randomString();
+		Standard standard = new Standard(
+			name,
+			new PrintStream( new ByteArrayOutputStream() )
+		);
+		standard.override( new ByteArrayOutputStream() );
+		ByteArrayOutputStream override = new ByteArrayOutputStream();
 		// Act
 		try {
 			standard.override( override );
