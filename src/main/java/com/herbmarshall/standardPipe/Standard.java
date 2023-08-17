@@ -10,6 +10,7 @@ import java.util.Objects;
 public final class Standard {
 
 	static final String DOUBLE_OVERRIDE_ERROR_TEMPLATE = "Double override of standard pipe: %s";
+	static final String NULL_POINTER_ERROR_TEMPLATE = "Value of %s cannot be null";
 
 	public static final Standard out = new Standard( "OUT", System.out );
 	public static final Standard err = new Standard( "ERROR", System.err );
@@ -21,8 +22,8 @@ public final class Standard {
 
 	/** Exposed for testing. */
 	Standard( String name, PrintStream defaultPipe ) {
-		this.name = Objects.requireNonNull( name );
-		this.defaultPipe = Objects.requireNonNull( defaultPipe );
+		this.name = requireNonNull( name, "name" );
+		this.defaultPipe = requireNonNull( defaultPipe, "defaultPipe" );
 	}
 
 	/** @see PrintStream#print(String) */
@@ -46,12 +47,16 @@ public final class Standard {
 	 */
 	public void override( PrintStream pipe ) {
 		if ( this.pipe != null ) throw new IllegalStateException( DOUBLE_OVERRIDE_ERROR_TEMPLATE.formatted( name ) );
-		this.pipe = Objects.requireNonNull( pipe );
+		this.pipe = requireNonNull( pipe, "pipe" );
 	}
 
 	/** Use the default {@link PrintStream}. */
 	public void reset() {
 		this.pipe = null;
+	}
+
+	private <T> T requireNonNull( T value, String name ) {
+		return Objects.requireNonNull( value, NULL_POINTER_ERROR_TEMPLATE.formatted( name ) );
 	}
 
 }

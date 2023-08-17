@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.util.UUID;
 
 import static com.herbmarshall.standardPipe.Standard.DOUBLE_OVERRIDE_ERROR_TEMPLATE;
+import static com.herbmarshall.standardPipe.Standard.NULL_POINTER_ERROR_TEMPLATE;
 
 class StandardTest {
 
@@ -21,7 +22,11 @@ class StandardTest {
 			Assertions.fail();
 		}
 		// Assert
-		catch ( NullPointerException ignored ) {
+		catch ( NullPointerException e ) {
+			Assertions.assertEquals(
+				NULL_POINTER_ERROR_TEMPLATE.formatted( "name" ),
+				e.getMessage()
+			);
 		}
 	}
 
@@ -35,7 +40,11 @@ class StandardTest {
 			Assertions.fail();
 		}
 		// Assert
-		catch ( NullPointerException ignored ) {
+		catch ( NullPointerException e ) {
+			Assertions.assertEquals(
+				NULL_POINTER_ERROR_TEMPLATE.formatted( "defaultPipe" ),
+				e.getMessage()
+			);
 		}
 	}
 
@@ -209,7 +218,11 @@ class StandardTest {
 			Assertions.fail();
 		}
 		// Assert
-		catch ( NullPointerException ignored ) {
+		catch ( NullPointerException e ) {
+			Assertions.assertEquals(
+				NULL_POINTER_ERROR_TEMPLATE.formatted( "pipe" ),
+				e.getMessage()
+			);
 		}
 	}
 
