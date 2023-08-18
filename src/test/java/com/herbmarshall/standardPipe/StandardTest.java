@@ -205,7 +205,7 @@ class StandardTest {
 	}
 
 	@Nested
-	class override_byteArrayOutputStream {
+	class override_ByteArrayOutputStreamm {
 
 		@Test
 		void $happyPath() {
@@ -276,7 +276,7 @@ class StandardTest {
 	}
 
 	@Nested
-	class override_printStream {
+	class override_PrintStream {
 
 		@Test
 		void $happyPath() {
