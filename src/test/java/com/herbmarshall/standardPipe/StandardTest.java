@@ -58,7 +58,7 @@ class StandardTest {
 	class print {
 
 		@Test
-		void $using_default() {
+		void using_default() {
 			// Arrange
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			Standard standard = new Standard(
@@ -73,7 +73,7 @@ class StandardTest {
 		}
 
 		@Test
-		void $using_override() {
+		void using_override() {
 			// Arrange
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			Standard standard = new Standard(
@@ -108,7 +108,7 @@ class StandardTest {
 	class println {
 
 		@Test
-		void $using_default() {
+		void using_default() {
 			// Arrange
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			Standard standard = new Standard(
@@ -123,7 +123,7 @@ class StandardTest {
 		}
 
 		@Test
-		void $using_override() {
+		void using_override() {
 			// Arrange
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			Standard standard = new Standard(
@@ -158,7 +158,7 @@ class StandardTest {
 	class toStream {
 
 		@Test
-		void $using_default() {
+		void using_default() {
 			// Arrange
 			PrintStream stream = new PrintStream( new ByteArrayOutputStream() );
 			Standard standard = new Standard(
@@ -172,7 +172,7 @@ class StandardTest {
 		}
 
 		@Test
-		void $using_override() {
+		void using_override() {
 			// Arrange
 			PrintStream stream = new PrintStream( new ByteArrayOutputStream() );
 			Standard standard = new Standard(
@@ -187,7 +187,7 @@ class StandardTest {
 		}
 
 		@Test
-		void $after_reset() {
+		void after_reset() {
 			// Arrange
 			PrintStream stream = new PrintStream( new ByteArrayOutputStream() );
 			Standard standard = new Standard(
@@ -208,7 +208,7 @@ class StandardTest {
 	class override_ByteArrayOutputStreamm {
 
 		@Test
-		void $happyPath() {
+		void happyPath() {
 			// Arrange
 			ByteArrayOutputStream streamA = new ByteArrayOutputStream();
 			Standard standard = new Standard(
@@ -250,7 +250,7 @@ class StandardTest {
 		}
 
 		@Test
-		void $double_call() {
+		void double_call() {
 			// Arrange
 			String name = randomString();
 			Standard standard = new Standard(
@@ -279,7 +279,7 @@ class StandardTest {
 	class override_PrintStream {
 
 		@Test
-		void $happyPath() {
+		void happyPath() {
 			// Arrange
 			ByteArrayOutputStream streamA = new ByteArrayOutputStream();
 			Standard standard = new Standard(
@@ -322,7 +322,7 @@ class StandardTest {
 		}
 
 		@Test
-		void $double_call() {
+		void double_call() {
 			// Arrange
 			String name = randomString();
 			Standard standard = new Standard(
