@@ -19,18 +19,11 @@
 
 	<properties>
 
-		<junit.version>   5.9.3   </junit.version>
+		<util.major>   1   </util.major>
 
 	</properties>
 
 	<dependencies>
-
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<version>${junit.version}</version>
-			<scope>test</scope>
-		</dependency>
 
 	</dependencies>
 
