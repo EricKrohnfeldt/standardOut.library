@@ -7,7 +7,7 @@ pipeline {
 			agent { docker { image env.DOCKER_IMAGE; args env.DOCKER_ARGS; registryUrl env.DOCKER_URL; registryCredentialsId env.DOCKER_CREDS } }
 			steps {
 				milestone 1
-				sh 'mvn clean deploy'
+				sh 'mvn clean deploy javadoc:javadoc'
 			}
 		}
 		stage( 'Prepare merge' ) {
@@ -60,7 +60,7 @@ pipeline {
 					sh 'git reset --hard origin/master'
 					sh "git merge --ff-only jenkins_${BUILD_NUMBER}"
 					sh 'mvn release:prepare release:perform --batch-mode'
-				}
+                }
 			}
 		}
 		stage( 'Deploy JavaDoc' ) {
@@ -68,24 +68,24 @@ pipeline {
 			agent { docker { image env.DOCKER_IMAGE; args env.DOCKER_ARGS; registryUrl env.DOCKER_URL; registryCredentialsId env.DOCKER_CREDS } }
 			steps {
 				milestone 4
-				script {
-					artifactName = sh(
-						script: "mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout",
-						returnStdout: true
-					).trim()
-				}
-				script {
-					artifactVersion = sh(
-						script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
-						returnStdout: true
-					).trim()
-				}
+                script {
+                    artifactName = sh(
+                        script: "mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout",
+                        returnStdout: true
+                    ).trim()
+                }
+                script {
+                    artifactVersion = sh(
+                        script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
+                        returnStdout: true
+                    ).trim().minus( '-SNAPSHOT' )
+                }
+                sh "echo ${artifactName} [ ${artifactVersion} ]"
+                sh 'rm -rf javadoc.info* || true'
+                sh 'mvn clean javadoc:javadoc'
 				sshagent( [ 'KirbyGitKey' ] ) {
-					sh 'rm -rf javadoc.info* || true'
-					sh 'mvn clean javadoc:javadoc'
 					sh 'git clone git@git.herb.herbmarshall.com:repository/util/javadoc.info'
 					dir('javadoc.info') {
-					    sh "echo ${artifactName} ${artifactVersion}"
                         sh 'git checkout work'
                         sh "mkdir -p site/${artifactName}"
                         sh "cp -r ../target/site/apidocs site/${artifactName}/${artifactVersion}"
