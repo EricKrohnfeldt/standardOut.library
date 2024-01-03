@@ -63,6 +63,39 @@ pipeline {
 				}
 			}
 		}
+		stage( 'Deploy JavaDoc' ) {
+			when { beforeAgent true; not { branch pattern: 'master(-\\d+)?', comparator: 'REGEXP' }; expression { releaseCandidate } }
+			agent { docker { image env.DOCKER_IMAGE; args env.DOCKER_ARGS; registryUrl env.DOCKER_URL; registryCredentialsId env.DOCKER_CREDS } }
+			steps {
+				milestone 4
+				script {
+					artifactName = sh(
+						script: "mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout",
+						returnStdout: true
+					).trim()
+				}
+				script {
+					artifactVersion = sh(
+						script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
+						returnStdout: true
+					).trim()
+				}
+				sshagent( [ 'KirbyGitKey' ] ) {
+					sh 'rm -rf javadoc.info* || true'
+					sh 'mvn clean javadoc:javadoc'
+					sh 'git clone git@git.herb.herbmarshall.com:repository/util/javadoc.info'
+					dir('javadoc.info') {
+					    sh "echo ${artifactName} ${artifactVersion}"
+                        sh 'git checkout work'
+                        sh "mkdir -p site/${artifactName}"
+                        sh "cp -r ../target/site/apidocs site/${artifactName}/${artifactVersion}"
+                        sh "git add site/${artifactName}/${artifactVersion}"
+                        sh "git commit -m \"Add ${artifactName} ${artifactVersion} docs\""
+                        sh 'git push'
+                    }
+				}
+			}
+		}
 	}
 	environment {
 		DOCKER_IMAGE = 'docker.herb.herbmarshall.com/maven.herb'
