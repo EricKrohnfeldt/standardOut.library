@@ -82,14 +82,17 @@ pipeline {
                 }
                 sh "echo ${artifactName} [ ${artifactVersion} ]"
                 sh 'rm -rf javadoc.info* || true'
-                sh 'mvn clean javadoc:javadoc'
+                sh 'mvn clean package javadoc:javadoc'
 				sshagent( [ 'KirbyGitKey' ] ) {
 					sh 'git clone git@git.herb.herbmarshall.com:repository/util/javadoc.info'
 					dir('javadoc.info') {
                         sh 'git checkout work'
-                        sh "mkdir -p site/${artifactName}"
-                        sh "cp -r ../target/site/apidocs site/${artifactName}/${artifactVersion}"
-                        sh "git add site/${artifactName}/${artifactVersion}"
+                    }
+				}
+				sh "./build.sh --docs javadoc.info/site"
+				sshagent( [ 'KirbyGitKey' ] ) {
+					dir('javadoc.info') {
+                        sh "git add site"
                         sh "git commit -m \"Add ${artifactName} ${artifactVersion} docs\""
                         sh 'git push'
                     }
