@@ -8,9 +8,9 @@
 	</scm>
 
 	<parent>
-		<groupId>com.herbmarshall</groupId>
-		<artifactId>LibraryParent</artifactId>
-		<version>   1.14   </version>
+		<groupId>      com.herbmarshall   </groupId>
+		<artifactId>      LibraryParent   </artifactId>
+		<version>                  1.15   </version>
 	</parent>
 
 	<artifactId>standardOut.library</artifactId>

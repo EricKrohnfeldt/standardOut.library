@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * A wrapper for the standard outputs.
@@ -41,16 +42,25 @@ public final class Standard {
 
 	/** Returns the current active {@link PrintStream}. */
 	public PrintStream toStream() {
-		return Objects.requireNonNullElse( pipe, defaultPipe );
+		return resolvePipe();
 	}
 
 	/**
 	 * Replace the default {@link PrintStream} using a {@link java.io.ByteArrayOutputStream}.
 	 * @throws IllegalStateException If an override is already in place
 	 */
-	public void override( ByteArrayOutputStream pipe ) {
-		if ( this.pipe != null ) throw new IllegalStateException( doubleOverrideError( name ) );
-		this.pipe = new PrintStream( requireNonNull( pipe, "pipe" ) );
+	public void override( ByteArrayOutputStream buffer ) {
+		override( createPipe( buffer ) );
+	}
+
+	/**
+	 * Replace the default {@link PrintStream} with {@link ByteArrayOutputStream} while executing {@code action}.
+	 * Override will be cleared after {@code action} has executed.
+	 * @param action {@link Consumer} that will accept the updated {@link PrintStream}
+	 * @throws IllegalStateException If an override is already in place
+	 */
+	public void override( ByteArrayOutputStream buffer, Consumer<PrintStream> action ) {
+		override( createPipe( buffer ), action );
 	}
 
 	/**
@@ -62,9 +72,33 @@ public final class Standard {
 		this.pipe = requireNonNull( pipe, "pipe" );
 	}
 
+	/**
+	 * Replace the default {@link PrintStream} while executing {@code action}.
+	 * Override will be cleared after {@code action} has executed.
+	 * @param action {@link Consumer} that will accept {@code pipe}
+	 * @throws IllegalStateException If an override is already in place
+	 */
+	public void override( PrintStream pipe, Consumer<PrintStream> action ) {
+		override( pipe );
+		try {
+			action.accept( this.pipe );
+		}
+		finally {
+			reset();
+		}
+	}
+
 	/** Use the default {@link PrintStream}. */
 	public void reset() {
 		this.pipe = null;
+	}
+
+	private PrintStream resolvePipe() {
+		return Objects.requireNonNullElse( pipe, defaultPipe );
+	}
+
+	private PrintStream createPipe( ByteArrayOutputStream buffer ) {
+		return new PrintStream( requireNonNull( buffer, "buffer" ) );
 	}
 
 	private <T> T requireNonNull( T value, String name ) {
