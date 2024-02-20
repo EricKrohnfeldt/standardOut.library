@@ -48,7 +48,10 @@ public final class Standard {
 	/**
 	 * Replace the default {@link PrintStream} using a {@link java.io.ByteArrayOutputStream}.
 	 * @throws IllegalStateException If an override is already in place
+	 * @deprecated Please use {@link Standard#withOverride(ByteArrayOutputStream)} or
+	 *      {@link Standard#withOverride(PrintStream)}
 	 */
+	@Deprecated( since = "1.7", forRemoval = true )  // Will be moved to package-private
 	public void override( ByteArrayOutputStream buffer ) {
 		override( createPipe( buffer ) );
 	}
@@ -58,7 +61,10 @@ public final class Standard {
 	 * Override will be cleared after {@code action} has executed.
 	 * @param action {@link Consumer} that will accept the updated {@link PrintStream}
 	 * @throws IllegalStateException If an override is already in place
+	 * @deprecated Please use {@link Standard#withOverride(ByteArrayOutputStream)} or
+	 *      {@link Standard#withOverride(PrintStream)}
 	 */
+	@Deprecated( since = "1.7", forRemoval = true )
 	public void override( ByteArrayOutputStream buffer, Consumer<PrintStream> action ) {
 		override( createPipe( buffer ), action );
 	}
@@ -66,7 +72,10 @@ public final class Standard {
 	/**
 	 * Replace the default {@link PrintStream}.
 	 * @throws IllegalStateException If an override is already in place
+	 * @deprecated Please use {@link Standard#withOverride(ByteArrayOutputStream)} or
+	 *      {@link Standard#withOverride(PrintStream)}
 	 */
+	@Deprecated( since = "1.7", forRemoval = true )  // Will be moved to package-private
 	public void override( PrintStream pipe ) {
 		if ( this.pipe != null ) throw new IllegalStateException( doubleOverrideError( name ) );
 		this.pipe = requireNonNull( pipe, "pipe" );
@@ -77,7 +86,10 @@ public final class Standard {
 	 * Override will be cleared after {@code action} has executed.
 	 * @param action {@link Consumer} that will accept {@code pipe}
 	 * @throws IllegalStateException If an override is already in place
+	 * @deprecated Please use {@link Standard#withOverride(ByteArrayOutputStream)} or
+	 *      {@link Standard#withOverride(PrintStream)}
 	 */
+	@Deprecated( since = "1.7", forRemoval = true )
 	public void override( PrintStream pipe, Consumer<PrintStream> action ) {
 		override( pipe );
 		try {
@@ -86,6 +98,27 @@ public final class Standard {
 		finally {
 			reset();
 		}
+	}
+
+	/**
+	 * Will create an {@link OverridePlan} for simple overriding of this {@link Standard}.
+	 * @param stream The {@link ByteArrayOutputStream} to use for the override.
+	 * @return A new {@link OverridePlan}.
+	 * @throws AssertionError if {@code stream} is null
+	 * @see #withOverride(PrintStream)
+	 */
+	public OverridePlan withOverride( ByteArrayOutputStream stream ) {
+		return withOverride( new PrintStream( stream ) );
+	}
+
+	/**
+	 * Will create an {@link OverridePlan} for simple overriding of this {@link Standard}.
+	 * @param pipe The {@link PrintStream} to use for the override.
+	 * @return A new {@link OverridePlan}.
+	 * @throws AssertionError if {@code pipe} is null
+	 */
+	public OverridePlan withOverride( PrintStream pipe ) {
+		return new OverridePlan( this, pipe );
 	}
 
 	/** Use the default {@link PrintStream}. */
