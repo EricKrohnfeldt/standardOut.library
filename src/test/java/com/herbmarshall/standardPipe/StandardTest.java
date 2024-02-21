@@ -5,12 +5,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.UUID;
 import java.util.function.Consumer;
-
-import static com.herbmarshall.standardPipe.Standard.doubleOverrideError;
-import static com.herbmarshall.standardPipe.Standard.nullPointerError;
 
 class StandardTest {
 
@@ -20,18 +18,14 @@ class StandardTest {
 		@Test
 		void name_null() {
 			// Arrange
-			PrintStream error = System.err;
+			OutputStream pipe = new ByteArrayOutputStream();
 			// Act
 			try {
-				new Standard( null, error );
+				new Standard( null, pipe );
 				Assertions.fail();
 			}
 			// Assert
-			catch ( NullPointerException e ) {
-				Assertions.assertEquals(
-					nullPointerError( "name" ),
-					e.getMessage()
-				);
+			catch ( NullPointerException ignored ) {
 			}
 		}
 
@@ -45,11 +39,7 @@ class StandardTest {
 				Assertions.fail();
 			}
 			// Assert
-			catch ( NullPointerException e ) {
-				Assertions.assertEquals(
-					nullPointerError( "defaultPipe" ),
-					e.getMessage()
-				);
+			catch ( NullPointerException ignored ) {
 			}
 		}
 
@@ -61,46 +51,45 @@ class StandardTest {
 		@Test
 		void using_default() {
 			// Arrange
-			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-			Standard standard = new Standard(
-				randomString(),
-				new PrintStream( stream )
-			);
+			ByteArrayOutputStream pipe = new ByteArrayOutputStream();
+			Standard standard = buildStandard( pipe );
 			String value = randomString();
 			// Act
 			standard.print( value );
 			// Assert
-			Assertions.assertEquals( value, stream.toString() );
+			Assertions.assertEquals( value, pipe.toString() );
 		}
 
 		@Test
 		void using_override() {
 			// Arrange
-			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-			Standard standard = new Standard(
-				randomString(),
-				new PrintStream( new ByteArrayOutputStream() )
-			);
-			String value = randomString();
-			standard.override( new PrintStream( stream ) );
+			ByteArrayOutputStream normal = new ByteArrayOutputStream();
+			ByteArrayOutputStream override = new ByteArrayOutputStream();
+
+			Standard standard = buildStandard( normal );
+
+			String valueA = randomString();
+			String valueB = randomString();
+			String valueC = randomString();
 			// Act
-			standard.print( value );
+			standard.print( valueA );
+			standard.withOverride( override )
+				.execute( () -> standard.print( valueB ) );
+			standard.print( valueC );
 			// Assert
-			Assertions.assertEquals( value, stream.toString() );
+			Assertions.assertEquals( valueA + valueC, normal.toString() );
+			Assertions.assertEquals( valueB, override.toString() );
 		}
 
 		@Test
 		void value_null() {
 			// Arrange
-			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-			Standard standard = new Standard(
-				randomString(),
-				new PrintStream( stream )
-			);
+			ByteArrayOutputStream pipe = new ByteArrayOutputStream();
+			Standard standard = buildStandard( pipe );
 			// Act
 			standard.print( null );
 			// Assert
-			Assertions.assertEquals( "null", stream.toString() );
+			Assertions.assertEquals( "null", pipe.toString() );
 		}
 
 	}
@@ -111,46 +100,45 @@ class StandardTest {
 		@Test
 		void using_default() {
 			// Arrange
-			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-			Standard standard = new Standard(
-				randomString(),
-				new PrintStream( stream )
-			);
+			ByteArrayOutputStream pipe = new ByteArrayOutputStream();
+			Standard standard = buildStandard( pipe );
 			String value = randomString();
 			// Act
 			standard.println( value );
 			// Assert
-			Assertions.assertEquals( value + "\n", stream.toString() );
+			Assertions.assertEquals( value + "\n", pipe.toString() );
 		}
 
 		@Test
 		void using_override() {
 			// Arrange
-			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-			Standard standard = new Standard(
-				randomString(),
-				new PrintStream( new ByteArrayOutputStream() )
-			);
-			standard.override( new PrintStream( stream ) );
-			String value = randomString();
+			ByteArrayOutputStream normal = new ByteArrayOutputStream();
+			ByteArrayOutputStream override = new ByteArrayOutputStream();
+
+			Standard standard = buildStandard( normal );
+
+			String valueA = randomString();
+			String valueB = randomString();
+			String valueC = randomString();
 			// Act
-			standard.println( value );
+			standard.println( valueA );
+			standard.withOverride( override )
+				.execute( () -> standard.println( valueB ) );
+			standard.println( valueC );
 			// Assert
-			Assertions.assertEquals( value + "\n", stream.toString() );
+			Assertions.assertEquals( valueA + "\n" + valueC + "\n", normal.toString() );
+			Assertions.assertEquals( valueB + "\n", override.toString() );
 		}
 
 		@Test
 		void value_null() {
 			// Arrange
-			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-			Standard standard = new Standard(
-				randomString(),
-				new PrintStream( stream )
-			);
+			ByteArrayOutputStream pipe = new ByteArrayOutputStream();
+			Standard standard = buildStandard( pipe );
 			// Act
 			standard.println( null );
 			// Assert
-			Assertions.assertEquals( "null\n", stream.toString() );
+			Assertions.assertEquals( "null\n", pipe.toString() );
 		}
 
 	}
@@ -161,51 +149,48 @@ class StandardTest {
 		@Test
 		void using_default() {
 			// Arrange
-			PrintStream stream = new PrintStream( new ByteArrayOutputStream() );
-			Standard standard = new Standard(
-				randomString(),
-				stream
-			);
+			String name = randomString();
+			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			Standard standard = new Standard( name, stream );
 			// Act
-			PrintStream output = standard.toStream();
+			OutputStream output = standard.toStream();
 			// Assert
-			Assertions.assertSame( stream, output );
+			String value = randomString();
+			new PrintStream( output ).print( value );
+			Assertions.assertEquals( value, stream.toString() );
+			Assertions.assertEquals( name, output.toString() );
 		}
 
 		@Test
 		void using_override() {
 			// Arrange
-			PrintStream stream = new PrintStream( new ByteArrayOutputStream() );
-			Standard standard = new Standard(
-				randomString(),
-				new PrintStream( new ByteArrayOutputStream() )
-			);
-			standard.override( stream );
-			// Act
-			PrintStream output = standard.toStream();
-			// Assert
-			Assertions.assertSame( stream, output );
-		}
+			ByteArrayOutputStream normal = new ByteArrayOutputStream();
+			ByteArrayOutputStream override = new ByteArrayOutputStream();
 
-		@Test
-		void after_reset() {
-			// Arrange
-			PrintStream stream = new PrintStream( new ByteArrayOutputStream() );
-			Standard standard = new Standard(
-				randomString(),
-				stream
-			);
-			standard.override( new PrintStream( new ByteArrayOutputStream() ) );
-			standard.reset();
+			Standard standard = buildStandard( normal );
 			// Act
-			PrintStream output = standard.toStream();
+			OutputStream output = standard.toStream();
+
 			// Assert
-			Assertions.assertSame( stream, output );
+			String valueA = randomString();
+			String valueB = randomString();
+			String valueC = randomString();
+
+			PrintStream print = new PrintStream( output );
+
+			print.print( valueA );
+			standard.withOverride( override )
+				.execute( () -> print.print( valueB ) );
+			print.print( valueC );
+
+			Assertions.assertEquals( valueA + valueC, normal.toString() );
+			Assertions.assertEquals( valueB, override.toString() );
 		}
 
 	}
 
 	@Nested
+	@Deprecated
 	class override_ByteArrayOutputStream {
 
 		@Test
@@ -241,11 +226,7 @@ class StandardTest {
 				Assertions.fail();
 			}
 			// Assert
-			catch ( NullPointerException e ) {
-				Assertions.assertEquals(
-					nullPointerError( "buffer" ),
-					e.getMessage()
-				);
+			catch ( NullPointerException ignored ) {
 			}
 		}
 
@@ -267,7 +248,7 @@ class StandardTest {
 			// Assert
 			catch ( IllegalStateException e ) {
 				Assertions.assertEquals(
-					doubleOverrideError( name ),
+					DivergingOutputStream.doubleOverrideError( name ),
 					e.getMessage()
 				);
 			}
@@ -276,6 +257,7 @@ class StandardTest {
 	}
 
 	@Nested
+	@Deprecated
 	class override_ByteArrayOutputStream_Consumer {
 
 		@Test
@@ -342,11 +324,7 @@ class StandardTest {
 				Assertions.fail();
 			}
 			// Assert
-			catch ( NullPointerException e ) {
-				Assertions.assertEquals(
-					nullPointerError( "buffer" ),
-					e.getMessage()
-				);
+			catch ( NullPointerException ignored ) {
 			}
 		}
 
@@ -374,7 +352,7 @@ class StandardTest {
 			}
 			catch ( IllegalStateException e ) {
 				Assertions.assertEquals(
-					doubleOverrideError( name ),
+					DivergingOutputStream.doubleOverrideError( name ),
 					e.getMessage()
 				);
 			}
@@ -407,7 +385,7 @@ class StandardTest {
 			}
 			catch ( IllegalStateException e ) {
 				Assertions.assertEquals(
-					doubleOverrideError( name ),
+					DivergingOutputStream.doubleOverrideError( name ),
 					e.getMessage()
 				);
 			}
@@ -419,6 +397,7 @@ class StandardTest {
 	}
 
 	@Nested
+	@Deprecated
 	class override_PrintStream {
 
 		@Test
@@ -455,11 +434,7 @@ class StandardTest {
 				Assertions.fail();
 			}
 			// Assert
-			catch ( NullPointerException e ) {
-				Assertions.assertEquals(
-					nullPointerError( "pipe" ),
-					e.getMessage()
-				);
+			catch ( NullPointerException ignored ) {
 			}
 		}
 
@@ -481,7 +456,7 @@ class StandardTest {
 			// Assert
 			catch ( IllegalStateException e ) {
 				Assertions.assertEquals(
-					doubleOverrideError( name ),
+					DivergingOutputStream.doubleOverrideError( name ),
 					e.getMessage()
 				);
 			}
@@ -490,6 +465,7 @@ class StandardTest {
 	}
 
 	@Nested
+	@Deprecated
 	class override_PrintStream_Consumer {
 
 		@Test
@@ -560,11 +536,7 @@ class StandardTest {
 				Assertions.fail();
 			}
 			// Assert
-			catch ( NullPointerException e ) {
-				Assertions.assertEquals(
-					nullPointerError( "pipe" ),
-					e.getMessage()
-				);
+			catch ( NullPointerException ignored ) {
 			}
 		}
 
@@ -592,7 +564,7 @@ class StandardTest {
 			}
 			catch ( IllegalStateException e ) {
 				Assertions.assertEquals(
-					doubleOverrideError( name ),
+					DivergingOutputStream.doubleOverrideError( name ),
 					e.getMessage()
 				);
 			}
@@ -625,7 +597,7 @@ class StandardTest {
 			}
 			catch ( IllegalStateException e ) {
 				Assertions.assertEquals(
-					doubleOverrideError( name ),
+					DivergingOutputStream.doubleOverrideError( name ),
 					e.getMessage()
 				);
 			}
@@ -637,6 +609,7 @@ class StandardTest {
 	}
 
 	@Test
+	@Deprecated
 	void reset() {
 		// Arrange
 		ByteArrayOutputStream streamA = new ByteArrayOutputStream();
@@ -661,65 +634,36 @@ class StandardTest {
 	}
 
 	@Nested
-	class withOverride_ByteArrayOutputStream {
+	class withOverride {
 
 		@Test
 		void happyPath() {
 			// Arrange
 			ByteArrayOutputStream normal = new ByteArrayOutputStream();
 			ByteArrayOutputStream override = new ByteArrayOutputStream();
-			Standard pipe = new Standard( randomString(), new PrintStream( normal ) );
-			String value = randomString();
+
+			Standard standard = buildStandard( normal );
+
+			String valueA = randomString();
+			String valueB = randomString();
+			String valueC = randomString();
 			// Act
-			pipe.withOverride( override )
-				.execute( () -> pipe.print( value ) );
+			standard.print( valueA );
+			standard.withOverride( override )
+				.execute( () -> standard.print( valueB ) );
+			standard.print( valueC );
 			// Assert
-			Assertions.assertEquals( normal.toString(), "" );
-			Assertions.assertEquals( override.toString(), value );
+			Assertions.assertEquals( valueA + valueC, normal.toString() );
+			Assertions.assertEquals( valueB, override.toString() );
 		}
 
 		@Test
 		void null_stream() {
 			// Arrange
-			Standard pipe = new Standard( randomString(), new PrintStream( new ByteArrayOutputStream() ) );
+			Standard pipe = buildStandard( new ByteArrayOutputStream() );
 			// Act
 			try {
-				pipe.withOverride( ( ByteArrayOutputStream ) null );
-				Assertions.fail();
-			}
-			// Assert
-			catch ( NullPointerException ignored ) {
-			}
-		}
-
-	}
-
-	@Nested
-	class withOverride_PrintStream {
-
-		@Test
-		void happyPath() {
-			// Arrange
-			ByteArrayOutputStream normal = new ByteArrayOutputStream();
-			ByteArrayOutputStream override = new ByteArrayOutputStream();
-			PrintStream overridePipe = new PrintStream( override );
-			Standard pipe = new Standard( randomString(), new PrintStream( normal ) );
-			String value = randomString();
-			// Act
-			pipe.withOverride( overridePipe )
-				.execute( () -> pipe.print( value ) );
-			// Assert
-			Assertions.assertEquals( "", normal.toString() );
-			Assertions.assertEquals( value, override.toString() );
-		}
-
-		@Test
-		void null_stream() {
-			// Arrange
-			Standard pipe = new Standard( randomString(), new PrintStream( new ByteArrayOutputStream() ) );
-			// Act
-			try {
-				pipe.withOverride( ( PrintStream ) null );
+				pipe.withOverride( null );
 				Assertions.fail();
 			}
 			// Assert
@@ -740,29 +684,20 @@ class StandardTest {
 	}
 
 	@Test
+	@Deprecated
 	void resetAll() {
 		// Arrange
-		ByteArrayOutputStream streamDefaultA = new ByteArrayOutputStream();
-		ByteArrayOutputStream streamDefaultB = new ByteArrayOutputStream();
-		Standard standardA = new Standard( randomString(), new PrintStream( streamDefaultA ) );
-		Standard standardB = new Standard( randomString(), new PrintStream( streamDefaultB ) );
-		ByteArrayOutputStream streamOverrideA = new ByteArrayOutputStream();
-		ByteArrayOutputStream streamOverrideB = new ByteArrayOutputStream();
-		standardA.override( new PrintStream( streamOverrideA ) );
-		standardB.override( new PrintStream( streamOverrideB ) );
-		String overrideValue = randomString();
-		String defaultValue = randomString();
-		standardA.print( overrideValue );
-		standardB.print( overrideValue );
 		// Act
-		Standard.resetAll();
+		try {
+			Standard.resetAll();
+		}
 		// Assert
-		standardA.print( defaultValue );
-		standardB.print( defaultValue );
-		Assertions.assertEquals( overrideValue, streamOverrideA.toString() );
-		Assertions.assertEquals( overrideValue, streamOverrideB.toString() );
-		Assertions.assertEquals( defaultValue, streamDefaultA.toString() );
-		Assertions.assertEquals( defaultValue, streamDefaultB.toString() );
+		catch ( UnsupportedOperationException ignored ) {
+		}
+	}
+
+	private Standard buildStandard( OutputStream pipe ) {
+		return new Standard( randomString(), pipe );
 	}
 
 	private Consumer<PrintStream> failingConsumer() {

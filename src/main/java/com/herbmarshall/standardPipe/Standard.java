@@ -1,10 +1,9 @@
 package com.herbmarshall.standardPipe;
 
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /**
@@ -13,47 +12,39 @@ import java.util.function.Consumer;
  */
 public final class Standard {
 
-	private static final Set<Standard> knownInstances = ConcurrentHashMap.newKeySet();
-
 	public static final Standard out = new Standard( "OUT", System.out );
 	public static final Standard err = new Standard( "ERROR", System.err );
 
-	private final String name;
-
-	private final PrintStream defaultPipe;
-	private PrintStream pipe;
+	private final DivergingOutputStream pipe;
 
 	/** Exposed for testing. */
-	Standard( String name, PrintStream defaultPipe ) {
-		this.name = requireNonNull( name, "name" );
-		this.defaultPipe = requireNonNull( defaultPipe, "defaultPipe" );
-		knownInstances.add( this );
+	Standard( String name, OutputStream pipe ) {
+		this.pipe = new DivergingOutputStream( name, Objects.requireNonNull( pipe ) );
 	}
 
 	/** @see PrintStream#print(String) */
 	public void print( String value ) {
-		toStream().print( value );
+		pipe.print( value );
 	}
 
 	/** @see PrintStream#println(String) */
 	public void println( String value ) {
-		toStream().println( value );
+		pipe.println( value );
 	}
 
-	/** Returns the current active {@link PrintStream}. */
-	public PrintStream toStream() {
-		return resolvePipe();
+	/** Returns the internal {@link OutputStream}. */
+	public OutputStream toStream() {
+		return pipe;
 	}
 
 	/**
 	 * Replace the default {@link PrintStream} using a {@link java.io.ByteArrayOutputStream}.
 	 * @throws IllegalStateException If an override is already in place
-	 * @deprecated Please use {@link Standard#withOverride(ByteArrayOutputStream)} or
-	 *      {@link Standard#withOverride(PrintStream)}
+	 * @deprecated Please use {@link Standard#withOverride(OutputStream)}
 	 */
-	@Deprecated( since = "1.7", forRemoval = true )  // Will be moved to package-private
+	@Deprecated( since = "1.7", forRemoval = true )
 	public void override( ByteArrayOutputStream buffer ) {
-		override( createPipe( buffer ) );
+		override( new PrintStream( buffer ) );
 	}
 
 	/**
@@ -61,24 +52,21 @@ public final class Standard {
 	 * Override will be cleared after {@code action} has executed.
 	 * @param action {@link Consumer} that will accept the updated {@link PrintStream}
 	 * @throws IllegalStateException If an override is already in place
-	 * @deprecated Please use {@link Standard#withOverride(ByteArrayOutputStream)} or
-	 *      {@link Standard#withOverride(PrintStream)}
+	 * @deprecated Please use {@link Standard#withOverride(OutputStream)}
 	 */
 	@Deprecated( since = "1.7", forRemoval = true )
 	public void override( ByteArrayOutputStream buffer, Consumer<PrintStream> action ) {
-		override( createPipe( buffer ), action );
+		override( new PrintStream( buffer ), action );
 	}
 
 	/**
 	 * Replace the default {@link PrintStream}.
 	 * @throws IllegalStateException If an override is already in place
-	 * @deprecated Please use {@link Standard#withOverride(ByteArrayOutputStream)} or
-	 *      {@link Standard#withOverride(PrintStream)}
+	 * @deprecated Please use {@link Standard#withOverride(OutputStream)}
 	 */
-	@Deprecated( since = "1.7", forRemoval = true )  // Will be moved to package-private
+	@Deprecated( since = "1.7", forRemoval = true )
 	public void override( PrintStream pipe ) {
-		if ( this.pipe != null ) throw new IllegalStateException( doubleOverrideError( name ) );
-		this.pipe = requireNonNull( pipe, "pipe" );
+		this.pipe.override( pipe );
 	}
 
 	/**
@@ -86,14 +74,13 @@ public final class Standard {
 	 * Override will be cleared after {@code action} has executed.
 	 * @param action {@link Consumer} that will accept {@code pipe}
 	 * @throws IllegalStateException If an override is already in place
-	 * @deprecated Please use {@link Standard#withOverride(ByteArrayOutputStream)} or
-	 *      {@link Standard#withOverride(PrintStream)}
+	 * @deprecated Please use {@link Standard#withOverride(OutputStream)}
 	 */
 	@Deprecated( since = "1.7", forRemoval = true )
 	public void override( PrintStream pipe, Consumer<PrintStream> action ) {
 		override( pipe );
 		try {
-			action.accept( this.pipe );
+			action.accept( new PrintStream( this.pipe ) );
 		}
 		finally {
 			reset();
@@ -102,53 +89,31 @@ public final class Standard {
 
 	/**
 	 * Will create an {@link OverridePlan} for simple overriding of this {@link Standard}.
-	 * @param stream The {@link ByteArrayOutputStream} to use for the override.
+	 * @param stream The {@link OutputStream} to use for the override.
 	 * @return A new {@link OverridePlan}.
 	 * @throws AssertionError if {@code stream} is null
-	 * @see #withOverride(PrintStream)
 	 */
-	public OverridePlan withOverride( ByteArrayOutputStream stream ) {
-		return withOverride( new PrintStream( stream ) );
+	public OverridePlan withOverride( OutputStream stream ) {
+		return new OverridePlan( pipe, stream );
 	}
 
 	/**
-	 * Will create an {@link OverridePlan} for simple overriding of this {@link Standard}.
-	 * @param pipe The {@link PrintStream} to use for the override.
-	 * @return A new {@link OverridePlan}.
-	 * @throws AssertionError if {@code pipe} is null
+	 * Use the default {@link PrintStream}.
+	 * @deprecated Please use {@link Standard#withOverride(OutputStream)}
 	 */
-	public OverridePlan withOverride( PrintStream pipe ) {
-		return new OverridePlan( this, pipe );
-	}
-
-	/** Use the default {@link PrintStream}. */
+	@Deprecated( since = "1.8", forRemoval = true )
 	public void reset() {
-		this.pipe = null;
+		this.pipe.reset();
 	}
 
-	private PrintStream resolvePipe() {
-		return Objects.requireNonNullElse( pipe, defaultPipe );
-	}
-
-	private PrintStream createPipe( ByteArrayOutputStream buffer ) {
-		return new PrintStream( requireNonNull( buffer, "buffer" ) );
-	}
-
-	private <T> T requireNonNull( T value, String name ) {
-		return Objects.requireNonNull( value, nullPointerError( name ) );
-	}
-
-	/** Will call reset of all known {@link Standard}. */
+	/**
+	 * Will call reset of all known {@link Standard}.
+	 * @throws UnsupportedOperationException Everytime
+	 * @deprecated Just don't
+	 */
+	@Deprecated( since = "1.8", forRemoval = true )
 	public static void resetAll() {
-		knownInstances.forEach( Standard::reset );
-	}
-
-	static String doubleOverrideError( String pipeName ) {
-		return "Double override of standard pipe " + pipeName;
-	}
-
-	static String nullPointerError( String parameterName ) {
-		return "Value of " + parameterName + " cannot be null";
+		throw new UnsupportedOperationException();
 	}
 
 }

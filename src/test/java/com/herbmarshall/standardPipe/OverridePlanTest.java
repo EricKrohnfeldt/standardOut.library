@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.OutputStream;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -19,10 +19,10 @@ class OverridePlanTest {
 		@Test
 		void happyPath() {
 			// Arrange
-			Standard standard = buildStandard();
-			PrintStream pipe = buildPipe();
+			DivergingOutputStream stream = buildDivergingStream();
+			ByteArrayOutputStream override = new ByteArrayOutputStream();
 			// Act
-			OverridePlan output = new OverridePlan( standard, pipe );
+			OverridePlan output = new OverridePlan( stream, override );
 			// Assert
 			Assertions.assertNotNull( output );
 		}
@@ -30,10 +30,10 @@ class OverridePlanTest {
 		@Test
 		@SuppressWarnings( "resource" )
 		void null_parameter() {
-			Standard standard = buildStandard();
-			PrintStream pipe = buildPipe();
-			null_parameter( () -> new OverridePlan( null, pipe ) );
-			null_parameter( () -> new OverridePlan( standard, null ) );
+			DivergingOutputStream stream = buildDivergingStream();
+			ByteArrayOutputStream override = new ByteArrayOutputStream();
+			null_parameter( () -> new OverridePlan( null, override ) );
+			null_parameter( () -> new OverridePlan( stream, null ) );
 		}
 
 		private void null_parameter( Supplier<OverridePlan> constructor ) {
@@ -59,15 +59,14 @@ class OverridePlanTest {
 			ByteArrayOutputStream normal = new ByteArrayOutputStream();
 			ByteArrayOutputStream override = new ByteArrayOutputStream();
 
-			Standard pipe = buildStandard(  normal );
-			PrintStream overridePipe = buildPipe( override );
+			DivergingOutputStream pipe = buildDivergingStream( normal );
 
 			String valueA = randomString();
 			String valueB = randomString();
 			String valueC = randomString();
 
 			Runnable action = () -> pipe.print( valueB );
-			OverridePlan plan = new OverridePlan( pipe, overridePipe );
+			OverridePlan plan = new OverridePlan( pipe, override );
 			// Act
 			pipe.print( valueA );
 			plan.execute( action );
@@ -88,18 +87,17 @@ class OverridePlanTest {
 			ByteArrayOutputStream normal = new ByteArrayOutputStream();
 			ByteArrayOutputStream override = new ByteArrayOutputStream();
 
-			Standard pipe = buildStandard( normal );
-			PrintStream overridePipe = buildPipe( override );
+			DivergingOutputStream pipe = buildDivergingStream( normal );
 
 			String valueA = randomString();
 			String valueB = randomString();
 			String valueC = randomString();
 
-			Consumer<PrintStream> action = p -> {
-				Assertions.assertSame( overridePipe, p );
+			Consumer<OutputStream> action = p -> {
+				Assertions.assertSame( override, p );
 				pipe.print( valueB );
 			};
-			OverridePlan plan = new OverridePlan( pipe, overridePipe );
+			OverridePlan plan = new OverridePlan( pipe, override );
 			// Act
 			pipe.print( valueA );
 			plan.execute( action );
@@ -120,8 +118,7 @@ class OverridePlanTest {
 			ByteArrayOutputStream normal = new ByteArrayOutputStream();
 			ByteArrayOutputStream override = new ByteArrayOutputStream();
 
-			Standard pipe = buildStandard( normal );
-			PrintStream overridePipe = buildPipe( override );
+			DivergingOutputStream pipe = buildDivergingStream( normal );
 
 			String valueA = randomString();
 			String valueB = randomString();
@@ -132,7 +129,7 @@ class OverridePlanTest {
 				pipe.print( valueB );
 				return expected;
 			};
-			OverridePlan plan = new OverridePlan( pipe, overridePipe );
+			OverridePlan plan = new OverridePlan( pipe, override );
 			// Act
 			pipe.print( valueA );
 			UUID output = plan.execute( action );
@@ -154,20 +151,19 @@ class OverridePlanTest {
 			ByteArrayOutputStream normal = new ByteArrayOutputStream();
 			ByteArrayOutputStream override = new ByteArrayOutputStream();
 
-			Standard pipe = buildStandard( normal );
-			PrintStream overridePipe = buildPipe( override );
+			DivergingOutputStream pipe = buildDivergingStream( normal );
 
 			String valueA = randomString();
 			String valueB = randomString();
 			String valueC = randomString();
 			UUID expected = UUID.randomUUID();
 
-			Function<PrintStream, UUID> action = p -> {
-				Assertions.assertSame( overridePipe, p );
+			Function<OutputStream, UUID> action = p -> {
+				Assertions.assertSame( override, p );
 				pipe.print( valueB );
 				return expected;
 			};
-			OverridePlan plan = new OverridePlan( pipe, overridePipe );
+			OverridePlan plan = new OverridePlan( pipe, override );
 			// Act
 			pipe.print( valueA );
 			UUID output = plan.execute( action );
@@ -180,20 +176,12 @@ class OverridePlanTest {
 
 	}
 
-	private PrintStream buildPipe() {
-		return buildPipe( new ByteArrayOutputStream() );
+	private DivergingOutputStream buildDivergingStream() {
+		return buildDivergingStream( new ByteArrayOutputStream() );
 	}
 
-	private PrintStream buildPipe( ByteArrayOutputStream stream ) {
-		return new PrintStream( stream );
-	}
-
-	private Standard buildStandard() {
-		return buildStandard( new ByteArrayOutputStream() );
-	}
-
-	private Standard buildStandard( ByteArrayOutputStream stream ) {
-		return new Standard( randomString(), new PrintStream( stream ) );
+	private DivergingOutputStream buildDivergingStream( ByteArrayOutputStream stream ) {
+		return new DivergingOutputStream( randomString(), stream );
 	}
 
 	private String randomString() {
