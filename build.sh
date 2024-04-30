@@ -2,7 +2,7 @@
 
 set -e
 
-#Using non-cdlocal because may be ran by jenkins
+# Using non-cdlocal because may be ran by jenkins
 cd "$( dirname "$( realpath "$( readlink -f "$0" )" )" )"
 
 OPERATION='build'
