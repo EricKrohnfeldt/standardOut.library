@@ -9,11 +9,11 @@
 
 	<parent>
 		<groupId>      com.herbmarshall   </groupId>
-		<artifactId>      LibraryParent   </artifactId>
-		<version>                  1.15   </version>
+		<artifactId>        library.pom   </artifactId>
+		<version>                  1.17   </version>
 	</parent>
 
-	<artifactId>standardOut.library</artifactId>
+	<artifactId>standardPipe</artifactId>
 	<version>1.11-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
