@@ -17,7 +17,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<scm>
-		<developerConnection>scm:git:ssh://git.herb.herbmarshall.com/repository/util/standardOut.library</developerConnection>
+		<developerConnection>scm:git:ssh://git.herb.herbmarshall.com/repository/util/standardPipe.library</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
