@@ -18,7 +18,7 @@
 
 	<scm>
 		<developerConnection>scm:git:ssh://git.herb.herbmarshall.com/repository/util/standardPipe.library</developerConnection>
-		<tag>standardPipe-1.11</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<parent>
@@ -28,7 +28,7 @@
 	</parent>
 
 	<artifactId>standardPipe</artifactId>
-	<version>1.11</version>
+	<version>1.12-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<properties>
