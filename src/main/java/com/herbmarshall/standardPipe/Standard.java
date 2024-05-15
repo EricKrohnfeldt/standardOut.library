@@ -54,7 +54,7 @@ public final class Standard {
 	/**
 	 * Replace the default {@link PrintStream} using a {@link java.io.ByteArrayOutputStream}.
 	 * @throws IllegalStateException If an override is already in place
-	 * @deprecated Please use {@link Standard#withOverride(OutputStream)}
+	 * @deprecated <a href="https://herbmarshall.atlassian.net/browse/UTIL-349">UTIL-349</a> Please use {@link Standard#withOverride(OutputStream)}
 	 */
 	@Deprecated( since = "1.7", forRemoval = true )
 	public void override( ByteArrayOutputStream buffer ) {
@@ -66,7 +66,7 @@ public final class Standard {
 	 * Override will be cleared after {@code action} has executed.
 	 * @param action {@link Consumer} that will accept the updated {@link PrintStream}
 	 * @throws IllegalStateException If an override is already in place
-	 * @deprecated Please use {@link Standard#withOverride(OutputStream)}
+	 * @deprecated <a href="https://herbmarshall.atlassian.net/browse/UTIL-349">UTIL-349</a> Please use {@link Standard#withOverride(OutputStream)}
 	 */
 	@Deprecated( since = "1.7", forRemoval = true )
 	public void override( ByteArrayOutputStream buffer, Consumer<PrintStream> action ) {
@@ -76,7 +76,7 @@ public final class Standard {
 	/**
 	 * Replace the default {@link PrintStream}.
 	 * @throws IllegalStateException If an override is already in place
-	 * @deprecated Please use {@link Standard#withOverride(OutputStream)}
+	 * @deprecated <a href="https://herbmarshall.atlassian.net/browse/UTIL-349">UTIL-349</a> Please use {@link Standard#withOverride(OutputStream)}
 	 */
 	@Deprecated( since = "1.7", forRemoval = true )
 	public void override( PrintStream pipe ) {
@@ -88,7 +88,7 @@ public final class Standard {
 	 * Override will be cleared after {@code action} has executed.
 	 * @param action {@link Consumer} that will accept {@code pipe}
 	 * @throws IllegalStateException If an override is already in place
-	 * @deprecated Please use {@link Standard#withOverride(OutputStream)}
+	 * @deprecated <a href="https://herbmarshall.atlassian.net/browse/UTIL-349">UTIL-349</a> Please use {@link Standard#withOverride(OutputStream)}
 	 */
 	@Deprecated( since = "1.7", forRemoval = true )
 	public void override( PrintStream pipe, Consumer<PrintStream> action ) {
@@ -113,7 +113,7 @@ public final class Standard {
 
 	/**
 	 * Use the default {@link PrintStream}.
-	 * @deprecated Please use {@link Standard#withOverride(OutputStream)}
+	 * @deprecated <a href="https://herbmarshall.atlassian.net/browse/UTIL-349">UTIL-349</a> Please use {@link Standard#withOverride(OutputStream)}
 	 */
 	@Deprecated( since = "1.8", forRemoval = true )
 	public void reset() {
@@ -123,7 +123,7 @@ public final class Standard {
 	/**
 	 * Will call reset of all known {@link Standard}.
 	 * @throws UnsupportedOperationException Everytime
-	 * @deprecated Just don't
+	 * @deprecated <a href="https://herbmarshall.atlassian.net/browse/UTIL-349">UTIL-349</a> Just don't
 	 */
 	@Deprecated( since = "1.8", forRemoval = true )
 	public static void resetAll() {
