@@ -6,6 +6,7 @@ set -e
 cd "$( dirname "$( realpath "$( readlink -f "$0" )" )" )"
 
 OPERATION='build'
+STASH="false"
 DEST=
 BUILD_DIR=$( pwd )
 SKIP_CHECKS=
@@ -17,6 +18,7 @@ printUsage() {
 	echo -e "\t-c --noChecks   Ignore run checkstyle"
 	echo -e "\t-t --noTests    Dont run unit tests ( or coverage )"
 	echo -e "\t-x              Both --noChecks and --noTests"
+	echo -e "\t-s              Stash changes before build and un-stash after build"
 }
 
 while test $# -gt 0
@@ -39,6 +41,9 @@ do
 			SKIP_CHECKS='-Dcheckstyle.skip=true'
 			SKIP_TESTS='-Dmaven.test.skip.exec'
 		;;
+		-s)
+			STASH='true'
+		;;
 		*)
 			DEST="$1"
 		;;
@@ -53,12 +58,25 @@ if [[ "build" == "${OPERATION}" ]]; then
 	WORK_DIR="/home/jenkins/workspace"
 	M2_DIR="${HOME}/.m2"
 
+	STASH_MESSAGE="Prebuild stash $( date )"
+	if [[ "${STASH}" == 'true' ]]; then
+		git stash save "${STASH_MESSAGE}"
+	fi
+
 	docker run -it --rm \
 		-v "${M2_DIR}":/home/jenkins/.m2 \
 		-v "${BUILD_DIR}":"${WORK_DIR}" \
 		-w "${WORK_DIR}" \
 		docker.herb.herbmarshall.com/maven.herb \
 		mvn clean install javadoc:javadoc ${SKIP_CHECKS} ${SKIP_TESTS}
+
+	if [[ "${STASH}" == 'true' ]]; then
+		if git stash list | grep -q "${STASH_MESSAGE}"; then
+			git stash pop
+		else
+			echo "Nothing to un-stash"
+		fi
+	fi
 
 elif [[ "docs" == "${OPERATION}" ]]; then
 
